@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>摸魚熊-雷達</title>
+  <link rel="icon" type="image/png" href="https://ryan1114-carer.github.io/radar-bear/red_bear.png">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    #map {
+      width: 100vw;
+      height: 100vh;
+      background: url('https://ryan1114-carer.github.io/radar-bear/background_image.png') no-repeat center center;
+      background-size: cover;
+      position: relative;
+    }
+    .radar {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(0, 255, 0, 0.2);
+      border: 2px solid rgba(0, 255, 0, 0.6);
+      animation: radarSweep 2s linear infinite;
+      transform-origin: center;
+    }
+    @keyframes radarSweep {
+      from {
+        transform: scale(0.5) rotate(0deg);
+        opacity: 1;
+      }
+      to {
+        transform: scale(1.5) rotate(360deg);
+        opacity: 0;
+      }
+    }
+    .target {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: url('https://ryan1114-carer.github.io/radar-bear/red_bear.png') no-repeat center center;
+      background-size: contain;
+    }
+  </style>
+</head>
+<body>
+  <div id="map">
+    <div class="radar" id="radar"></div>
+  </div>
+
+  <script>
+    const radar = document.getElementById('radar');
+    const map = document.getElementById('map');
+    radar.style.top = `calc(50% - 100px)`;
+    radar.style.left = `calc(50% - 100px)`;
+
+    function latLngToPixels(lat, lng, mapWidth, mapHeight) {
+      const x = ((lng + 180) / 360) * mapWidth;
+      const y = ((90 - lat) / 180) * mapHeight;
+      return { x, y };
+    }
+
+    function addTarget(lat, lng) {
+      const { width, height } = map.getBoundingClientRect();
+      const pos = latLngToPixels(lat, lng, width, height);
+      const target = document.createElement('div');
+      target.className = 'target';
+      target.style.left = `${pos.x - 10}px`;
+      target.style.top = `${pos.y - 10}px`;
+      map.appendChild(target);
+    }
+
+    // Use IP-based geolocation via public API
+    fetch('https://ipapi.co/json/')
+      .then(response => response.json())
+      .then(data => {
+        const lat = data.latitude;
+        const lng = data.longitude;
+        addTarget(lat, lng);
+      })
+      .catch(err => {
+        console.error('IP geolocation failed:', err);
+      });
+  </script>
+</body>
+</html>
+
